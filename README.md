@@ -1,53 +1,74 @@
-# Shazam - AI Agent Orchestrator
+# Shazam
 
-> Create autonomous "companies" of specialized Claude AI agents that work in hierarchical teams to execute software development tasks.
+**Autonomous AI agent teams, right from your terminal.**
 
-**Version:** 0.1.0 | **Language:** Elixir/OTP | **AI Engine:** Claude Code SDK
+Shazam is an open-source CLI that orchestrates teams of Claude AI agents. You describe what you want built. A PM agent breaks it down, assigns subtasks to developer agents, and they execute — all while you watch in a real-time TUI dashboard.
 
-**Website:** [shazam.dev](https://shazam.dev) | **GitHub:** [raphaelbarbosaqwerty/shazam-cli](https://github.com/raphaelbarbosaqwerty/shazam-cli)
+```
+shazam❯ Build a REST API for user authentication with JWT tokens
+  22:15:03 [pm]        Created: Build a REST API for user authentication...
+  22:15:08 [pm]        Started: task_1
+  22:15:14 [pm]        Completed: task_1
+  22:15:14 [senior_1]  Started: Implement JWT middleware and token validation
+  22:15:14 [senior_2]  Started: Create user registration and login endpoints
+  22:15:14 [qa_1]      Started: Write authentication test suite
+```
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Configuration (shazam.yaml)](#configuration)
-- [CLI Reference](#cli-reference)
-- [API Reference](#api-reference)
-- [Core Concepts](#core-concepts)
-- [Module Reference](#module-reference)
-- [Memory Systems](#memory-systems)
-- [Persistence](#persistence)
-- [Contributing](#contributing)
-- [License](#license)
+**Website:** [shazam.dev](https://shazam.dev) | **Docs:** [shazam.dev/docs](https://shazam.dev/docs) | **License:** MIT
 
 ---
 
-## Overview
+## Why Shazam?
 
-Shazam is an AI agent orchestrator that models software teams as autonomous "companies." Each company has a hierarchy of specialized Claude AI agents — Project Managers, Developers, QA Engineers, Analysts, and Designers — that collaborate to execute tasks. Agents follow a chain of command, delegate work through subtasks, and maintain persistent memory across sessions.
+- **Natural language in, working code out.** Type what you want. The PM breaks it down. Developers implement. QA tests.
+- **Human-in-the-loop.** Every subtask needs your approval before agents execute. You stay in control.
+- **Real-time TUI.** Watch agents work in a beautiful terminal interface with scrollable events, task management, and agent dashboards.
+- **Team templates.** Spin up a backend team with `/team create backend --devs 2 --qa 1` in one command.
+- **Session pooling.** Agents reuse Claude sessions across tasks — saves tokens and preserves context.
+- **Open source.** Built with Elixir/OTP for fault-tolerance and a Rust TUI for performance.
 
-### Key Capabilities
+---
 
-| Capability | Description |
+## How It Works
+
+```
+You (CEO) ──> describe task in natural language
+                │
+           PM Agent (Haiku) ──> breaks down into subtasks
+                │
+     ┌──────────┼──────────┐
+     │          │          │
+ Dev Agent   Dev Agent   QA Agent
+ (Opus)      (Sonnet)    (Sonnet)
+ implements  implements  writes tests
+```
+
+1. You type a task in the interactive shell
+2. The PM agent decomposes it into subtasks with dependencies
+3. Subtasks go to your approval queue (or auto-approve)
+4. Developer agents execute in parallel, respecting module locks
+5. QA agents validate the output
+6. You review results in the TUI
+
+---
+
+## Features
+
+| Feature | Description |
 |---|---|
-| **Autonomous Company Model** | Hierarchical agent teams (CEO -> PM -> Dev/QA/Analyst) |
-| **RalphLoop** | Per-company polling loop that picks, executes, and monitors tasks |
-| **TaskBoard** | ETS-backed task management with atomic checkout |
-| **Session Pool** | Reuses Claude sessions across tasks (saves tokens, preserves context) |
-| **Skill Memory** | Structured knowledge graph with frontmatter tags |
-| **Module Locking** | Prevents concurrent edits to the same code module |
-| **Subtask Delegation** | PMs output JSON subtask blocks; parser creates child tasks automatically |
-| **Peer Reassignment** | Idle agents pick up tasks from busy peers |
-| **Auto-Retry** | Exponential backoff (5s, 15s, 30s) for failed tasks |
-| **Codex Fallback** | Falls back to Codex CLI if Claude hits rate limits |
-| **Human-in-the-Loop** | PM subtasks go to approval queue before execution |
-| **Real-time Events** | EventBus pub/sub with WebSocket streaming |
-| **CLI + REPL** | Full command-line interface with interactive shell |
+| **Interactive TUI** | Rust-powered terminal with overlays for tasks, agents, config, dashboard |
+| **Ghost text autocomplete** | Tab-completable `/commands` with inline hints |
+| **Task action menu** | Select a task, press Enter, approve/reject/pause/kill/retry |
+| **Agent management** | `/agent add`, `/agent edit`, `/agent remove` with YAML persistence |
+| **Team templates** | `/team create <domain> --devs N --qa N` creates entire teams |
+| **10 agent presets** | PM, Senior Dev, Junior Dev, QA, Designer, Researcher, DevOps, Writer, Market Analyst, Competitor Analyst |
+| **Session pooling** | Reuses Claude sessions (recycles after 8 tasks or 15 min idle) |
+| **Module locking** | Prevents concurrent edits to the same file |
+| **Peer reassignment** | Idle agents pick up tasks from busy peers |
+| **Auto-retry** | Exponential backoff (5s, 15s, 30s) for failed tasks |
+| **Human-in-the-loop** | PM subtasks require approval before execution |
+| **Real-time events** | Live feed of agent activity with scrollbar and mouse support |
+| **REST API** | HTTP endpoints + WebSocket for external integrations |
 
 ---
 
