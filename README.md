@@ -4,7 +4,7 @@
 
 **Version:** 0.1.0 | **Language:** Elixir/OTP | **AI Engine:** Claude Code SDK
 
-> **Note:** This repository is named `Clawster` for historical reasons. The project has been renamed to **Shazam**.
+**Website:** [shazam.dev](https://shazam.dev) | **GitHub:** [raphaelbarbosaqwerty/shazam-cli](https://github.com/raphaelbarbosaqwerty/shazam-cli)
 
 ---
 
@@ -121,45 +121,38 @@ RalphLoop polls TaskBoard every 5s
 
 ---
 
-## Prerequisites
-
-- **Elixir** >= 1.16
-- **Erlang/OTP** >= 26
-- **Claude Code CLI** installed and configured with a valid API key
-- **SQLite3** (optional — falls back to JSON file storage)
-
----
-
 ## Installation
 
-### From Source
+### From Source (recommended)
 
 ```bash
 # Clone the repository
-git clone https://github.com/raphab3/shazam.git
-cd shazam
+git clone https://github.com/raphaelbarbosaqwerty/shazam-cli.git
+cd shazam-cli
 
-# Install dependencies
+# Install Elixir dependencies
 mix deps.get
 
-# Build the escript binary
-mix escript.build
-
-# Move to PATH (optional)
-sudo mv shazam /usr/local/bin/
+# Build everything (Elixir escript + Rust TUI) and install to ~/bin/
+./build.sh
 ```
 
-### As a Dependency
+The `build.sh` script:
+1. Builds the Rust TUI binary (`shazam-tui`) — requires [Rust](https://rustup.rs/)
+2. Builds the Elixir escript (`shazam`)
+3. Installs both to `~/bin/`
 
-Add to your `mix.exs`:
-
-```elixir
-defp deps do
-  [
-    {:shazam, "~> 0.1.0"}
-  ]
-end
+Make sure `~/bin` is in your `PATH`:
+```bash
+export PATH="$HOME/bin:$PATH"
 ```
+
+### Prerequisites
+
+- **Elixir** >= 1.16 and **Erlang/OTP** >= 26
+- **Rust** (for the TUI) — install via [rustup.rs](https://rustup.rs/)
+- **Claude Code CLI** installed and configured with a valid Anthropic API key
+- **SQLite3** (optional — falls back to JSON file storage)
 
 ---
 
@@ -177,30 +170,35 @@ This creates a `shazam.yaml` in the current directory with a starter company con
 
 Edit `shazam.yaml` (see [Configuration](#configuration) below).
 
-### 3. Start the Orchestrator
+### 3. Start the Interactive Shell
 
 ```bash
+shazam shell
+```
+
+This opens the Rust TUI with the full interactive shell. Inside:
+
+```
+shazam❯ /start                    # Boot agents and RalphLoop
+shazam❯ /tasks                    # View task board
+shazam❯ Build user authentication # Creates task for PM (natural language)
+shazam❯ /aa                       # Approve all pending subtasks
+shazam❯ /dashboard                # Live agent status
+shazam❯ /agents                   # View agents by domain
+```
+
+### Alternative: CLI Commands
+
+```bash
+# Start server mode (HTTP API on port 4040)
 shazam start
-```
 
-This boots the OTP application, starts the HTTP API on port 4040, restores saved companies, and begins the RalphLoop.
+# Create a task
+shazam task "Implement JWT auth" --to pm
 
-### 4. Create a Task
-
-```bash
-shazam task "Implement user authentication with JWT tokens" --to pm
-```
-
-### 5. Monitor Progress
-
-```bash
-# Live event stream
+# Monitor
 shazam logs
-
-# Interactive dashboard
 shazam dashboard
-
-# Org chart
 shazam org
 ```
 
@@ -635,7 +633,7 @@ All data is restored on startup. Companies and their RalphLoops resume automatic
 
 ```bash
 # Clone and enter
-git clone https://github.com/raphab3/shazam.git
+git clone https://github.com/raphaelbarbosaqwerty/shazam-cli.git
 cd shazam
 
 # Install deps
@@ -703,6 +701,21 @@ Shazam includes pre-configured agent templates for common roles:
 | `market_analyst` | Market Analyst | Sonnet | Market research |
 | `competitor_analyst` | Competitor Analyst | Sonnet | Competitive analysis |
 
+### Team Templates
+
+Quickly create entire teams with one command:
+
+```bash
+# Create a backend team: 2 devs + 1 QA
+/team create backend --devs 2 --qa 1
+
+# Create a frontend team: 3 devs + designer
+/team create frontend --devs 3 --designer
+
+# Create a research team: 2 devs + researcher
+/team create api --devs 2 --researcher
+```
+
 ---
 
 ## Tech Stack
@@ -717,7 +730,7 @@ Shazam includes pre-configured agent templates for common roles:
 | **Config Parsing** | YamlElixir (~> 2.9) |
 | **JSON** | Jason (~> 1.4) |
 | **CORS** | CorsPlug (~> 3.0) |
-| **Frontend** | Flutter (separate repo, connects via WebSocket) |
+| **TUI** | Rust (ratatui + crossterm) |
 
 ---
 
