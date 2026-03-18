@@ -33,8 +33,14 @@ defmodule Shazam.MixProject do
   defp releases do
     [
       shazam: [
-        steps: [:assemble],
-        include_executables_for: [:unix]
+        steps: [:assemble, &Burrito.step/1],
+        burrito: [
+          targets: [
+            macos_arm64: [os: :darwin, cpu: :aarch64],
+            macos_x86_64: [os: :darwin, cpu: :x86_64],
+            linux_x86_64: [os: :linux, cpu: :x86_64]
+          ]
+        ]
       ]
     ]
   end
@@ -48,7 +54,8 @@ defmodule Shazam.MixProject do
       {:cors_plug, "~> 3.0"},
       {:websock_adapter, "~> 0.5"},
       {:exqlite, "~> 0.27"},
-      {:yaml_elixir, "~> 2.9"}
+      {:yaml_elixir, "~> 2.9"},
+      {:burrito, "~> 1.0"}
     ]
   end
 end

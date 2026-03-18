@@ -123,7 +123,31 @@ RalphLoop polls TaskBoard every 5s
 
 ## Installation
 
-### From Source (recommended)
+### Method 1: Quick Install (curl)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/raphaelbarbosaqwerty/shazam-cli/main/install.sh | sh
+```
+
+This detects your OS and architecture, downloads the latest release, and installs `shazam` and `shazam-tui` to `~/.local/bin/` (or `~/bin/`).
+
+### Method 2: Download Binary
+
+Download the pre-built tarball for your platform from the [GitHub Releases](https://github.com/raphaelbarbosaqwerty/shazam-cli/releases) page.
+
+Available builds:
+- `shazam-{version}-macos-arm64.tar.gz` (Apple Silicon)
+- `shazam-{version}-macos-x86_64.tar.gz` (Intel Mac)
+- `shazam-{version}-linux-x86_64.tar.gz` (Linux)
+
+Extract and run the included `install.sh`:
+
+```bash
+tar xzf shazam-*.tar.gz
+./install.sh
+```
+
+### Method 3: Build from Source
 
 ```bash
 # Clone the repository
@@ -138,7 +162,7 @@ mix deps.get
 ```
 
 The `build.sh` script:
-1. Builds the Rust TUI binary (`shazam-tui`) — requires [Rust](https://rustup.rs/)
+1. Builds the Rust TUI binary (`shazam-tui`) -- requires [Rust](https://rustup.rs/)
 2. Builds the Elixir escript (`shazam`)
 3. Installs both to `~/bin/`
 
@@ -147,12 +171,12 @@ Make sure `~/bin` is in your `PATH`:
 export PATH="$HOME/bin:$PATH"
 ```
 
-### Prerequisites
+#### Prerequisites
 
 - **Elixir** >= 1.16 and **Erlang/OTP** >= 26
-- **Rust** (for the TUI) — install via [rustup.rs](https://rustup.rs/)
+- **Rust** (for the TUI) -- install via [rustup.rs](https://rustup.rs/)
 - **Claude Code CLI** installed and configured with a valid Anthropic API key
-- **SQLite3** (optional — falls back to JSON file storage)
+- **SQLite3** (optional -- falls back to JSON file storage)
 
 ---
 
