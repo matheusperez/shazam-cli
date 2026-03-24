@@ -14,7 +14,7 @@ defmodule Shazam.CLI.TuiPort.Helpers do
       agent: agent,
       event: event_type,
       title: title,
-      timestamp: Calendar.strftime(NaiveDateTime.local_now(), "%H:%M:%S")
+      timestamp: Shazam.CLI.Formatter.local_time_string()
     })
   end
 

@@ -102,7 +102,7 @@ defmodule Shazam.CLI.Formatter do
   # --- Event log line ---
 
   def log_event(event) do
-    ts = Calendar.strftime(NaiveDateTime.local_now(), "%H:%M:%S")
+    ts = Shazam.CLI.Formatter.local_time_string()
     type = event[:event] || event["event"] || "unknown"
     agent = event[:agent] || event["agent"] || event["assigned_to"] || ""
     title = event[:title] || event["title"] || event[:task_id] || event["task_id"] || ""
@@ -222,6 +222,24 @@ defmodule Shazam.CLI.Formatter do
 
     IO.write("\e[?25h")  # Show cursor
   end
+
+  def local_time_string do
+    Calendar.strftime(NaiveDateTime.local_now(), "%H:%M:%S")
+  end
+
+  def to_local_time_string(%DateTime{} = dt) do
+    now_utc = NaiveDateTime.utc_now()
+    now_local = NaiveDateTime.local_now()
+    offset = NaiveDateTime.diff(now_local, now_utc, :second)
+    Calendar.strftime(DateTime.add(dt, offset, :second), "%H:%M:%S")
+  end
+
+  def to_local_time_string(%NaiveDateTime{} = dt) do
+    Calendar.strftime(dt, "%H:%M:%S")
+  end
+
+  def to_local_time_string(dt) when is_binary(dt), do: dt
+  def to_local_time_string(_), do: ""
 
   def print_welcome(:repl) do
     IO.puts([IO.ANSI.faint(), "       AI Agent Orchestrator v#{@version}  •  shazam.dev\n", IO.ANSI.reset()])

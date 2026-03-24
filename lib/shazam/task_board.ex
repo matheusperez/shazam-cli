@@ -380,7 +380,6 @@ defmodule Shazam.TaskBoard do
         :ets.insert(state.table, {task_id, updated})
         Logger.info("[TaskBoard] Task #{task_id} soft-deleted")
         broadcast(:task_deleted, updated)
-        spawn(fn -> Shazam.TaskFiles.delete_task(task_id) end)
         {:reply, :ok, schedule_save(state)}
 
       [] ->

@@ -49,6 +49,7 @@ defmodule Shazam.CLI.TuiPort.Commands do
       "/kill-task <id>     — Kill running task",
       "/retry-task <id>    — Retry failed task",
       "/delete-task <id>   — Delete a task",
+      "/force-delete-task <id> — Permanently delete a task",
       "",
       "/clear              — Clear scroll region",
       "/help               — Show this help",
@@ -171,24 +172,8 @@ defmodule Shazam.CLI.TuiPort.Commands do
   end
 
   defp format_task_time(task) do
-    dt = task[:created_at] || Map.get(task, :created_at)
-
-    cond do
-      is_struct(dt, DateTime) ->
-        to_local_time_string(dt)
-      is_struct(dt, NaiveDateTime) ->
-        Calendar.strftime(dt, "%H:%M:%S")
-      is_binary(dt) ->
-        dt
-      true ->
-        ""
-    end
-  end
-
-  defp to_local_time_string(dt) do
-    offset = NaiveDateTime.diff(NaiveDateTime.local_now(), NaiveDateTime.utc_now(), :second)
-    local_dt = DateTime.add(dt, offset, :second)
-    Calendar.strftime(local_dt, "%H:%M:%S")
+    dt = Map.get(task, :created_at)
+    Shazam.CLI.Formatter.to_local_time_string(dt)
   end
 
   def handle_command("/task " <> title, state) do
@@ -696,6 +681,20 @@ defmodule Shazam.CLI.TuiPort.Commands do
     if Code.ensure_loaded?(Shazam.TaskBoard) do
       Shazam.TaskBoard.delete(task_id)
       Helpers.send_event(state.port, "system", "task_deleted", "Task deleted: #{task_id}")
+    end
+    Status.send_status(state)
+    state
+  end
+
+  def handle_command("/force-delete-task " <> task_id, state) do
+    task_id = String.trim(task_id)
+    if Code.ensure_loaded?(Shazam.TaskBoard) do
+      case Shazam.TaskBoard.purge(task_id) do
+        :ok ->
+          Helpers.send_event(state.port, "system", "task_deleted", "Task permanently deleted: #{task_id}")
+        {:error, :not_found} ->
+          Helpers.send_event(state.port, "system", "error", "Task not found: #{task_id}")
+      end
     end
     Status.send_status(state)
     state
